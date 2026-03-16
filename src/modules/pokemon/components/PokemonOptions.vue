@@ -3,19 +3,19 @@
     <button
       v-for="{ name, id } in options"
       :key="id"
-      @click="$emit('selectedOption', id)"
+      @click="onOptionClick(id)"
       :class="[
         'w-full sm:w-64 py-3 px-6 m-2 flex justify-center items-center rounded-xl font-bold tracking-wide capitalize transition-all duration-300 border-2 outline-none focus:ring-4 focus:ring-blue-500/50',
-        blockSelection 
+        blockSelection || clickedOptions.includes(id)
           ? 'cursor-not-allowed transform-none' 
           : 'cursor-pointer hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] active:translate-y-0 active:scale-95 border-slate-600 bg-slate-700/80 text-slate-200 hover:bg-slate-700 hover:border-blue-500',
         {
           'correct': id === correctAnswer && blockSelection,
-          'incorrect': id !== correctAnswer && blockSelection,
-          'opacity-40 border-slate-800 bg-slate-800': blockSelection && id !== correctAnswer && gameStatus !== undefined, // Dim unselected options
+          'incorrect': id !== correctAnswer && clickedOptions.includes(id),
+          'opacity-40 border-slate-800 bg-slate-800': (blockSelection || clickedOptions.includes(id)) && id !== correctAnswer, // Dim unselected/wrong options
         },
       ]"
-      :disabled="blockSelection"
+      :disabled="blockSelection || clickedOptions.includes(id)"
     >
       {{ name }}
     </button>
@@ -23,6 +23,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue';
 import type { Pokemon, GameStatus } from '../interfaces';
 
 interface Props {
@@ -30,13 +31,32 @@ interface Props {
   blockSelection: boolean;
   correctAnswer: number;
   gameStatus: GameStatus;
+  lives: number;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
-defineEmits<{
+const emit = defineEmits<{
   selectedOption: [id: number];
 }>();
+
+const clickedOptions = ref<number[]>([]);
+
+// Reset clicked options when the options array changes (new round)
+watch(() => props.options, () => {
+  clickedOptions.value = [];
+}, { deep: true });
+
+const onOptionClick = (id: number) => {
+  if (props.blockSelection || clickedOptions.value.includes(id)) return;
+  
+  // Track that this individual button was clicked during the round
+  if (id !== props.correctAnswer) {
+    clickedOptions.value.push(id);
+  }
+  
+  emit('selectedOption', id);
+};
 </script>
 
 <style scoped>

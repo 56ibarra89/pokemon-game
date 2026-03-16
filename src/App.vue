@@ -20,9 +20,37 @@
       <h1 class="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-blue-400 to-emerald-400">Preparando arena...</h1>
     </section>
 
-  <section v-else class="flex flex-col justify-center items-center w-full z-10 p-4">
+  <section v-else class="flex flex-col justify-center items-center w-full z-10 p-4 relative min-h-screen">
+    <!-- Top Bar: Lives (Left) & Score (Right) -->
+    <div class="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-1.5 bg-slate-800/40 px-4 py-2 rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] backdrop-blur-xl border border-white/10 z-10">
+      <!-- Pokeball Lives Loop -->
+      <template v-for="i in 3" :key="i">
+        <svg v-if="i <= lives" viewBox="0 0 100 100" class="w-6 h-6 sm:w-8 sm:h-8 drop-shadow-md transition-transform hover:scale-110" xmlns="http://www.w3.org/2000/svg">
+          <!-- Top Red Half -->
+          <path d="M 50 5 A 45 45 0 0 1 95 50 L 70 50 A 20 20 0 0 0 30 50 L 5 50 A 45 45 0 0 1 50 5 Z" fill="#ef4444" stroke="#1e293b" stroke-width="4"/>
+          <!-- Bottom White Half -->
+          <path d="M 50 95 A 45 45 0 0 0 95 50 L 70 50 A 20 20 0 0 1 30 50 L 5 50 A 45 45 0 0 0 50 95 Z" fill="#f8fafc" stroke="#1e293b" stroke-width="4"/>
+          <!-- Center Button -->
+          <circle cx="50" cy="50" r="14" fill="#f8fafc" stroke="#1e293b" stroke-width="4"/>
+          <circle cx="50" cy="50" r="6" fill="#1e293b"/>
+          <!-- Highlight (Optional Polish) -->
+          <path d="M 30 20 A 30 30 0 0 1 65 10" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+
+        <svg v-else viewBox="0 0 100 100" class="w-6 h-6 sm:w-8 sm:h-8 drop-shadow-md opacity-30 grayscale transition-opacity duration-300" xmlns="http://www.w3.org/2000/svg">
+          <!-- Top Gray Half -->
+          <path d="M 50 5 A 45 45 0 0 1 95 50 L 70 50 A 20 20 0 0 0 30 50 L 5 50 A 45 45 0 0 1 50 5 Z" fill="#64748b" stroke="#0f172a" stroke-width="4"/>
+          <!-- Bottom Gray-ish Half -->
+          <path d="M 50 95 A 45 45 0 0 0 95 50 L 70 50 A 20 20 0 0 1 30 50 L 5 50 A 45 45 0 0 0 50 95 Z" fill="#cbd5e1" stroke="#0f172a" stroke-width="4"/>
+          <!-- Center Button -->
+          <circle cx="50" cy="50" r="14" fill="#cbd5e1" stroke="#0f172a" stroke-width="4"/>
+          <circle cx="50" cy="50" r="6" fill="#0f172a"/>
+        </svg>
+      </template>
+    </div>
+
     <!-- Score Card (Glassmorphism) -->
-    <div class="absolute top-4 right-4 sm:top-6 sm:right-6 flex flex-col items-end bg-slate-800/40 px-5 py-3 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] backdrop-blur-xl border border-white/10 z-10 transition-all hover:bg-slate-800/60">
+    <div class="absolute top-4 right-4 sm:top-6 sm:right-6 flex flex-col items-end bg-slate-800/40 px-5 py-3 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] backdrop-blur-xl border border-white/10 z-10 transition-all hover:bg-slate-800/60 w-36 sm:w-auto">
       <div class="flex items-center gap-2">
         <span class="relative flex h-3 w-3">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -60,6 +88,7 @@
         :block-selection="gameStatus !== GameStatus.Playing"
         :correct-answer="randomPokemon?.id ?? 0"
         :game-status="gameStatus"
+        :lives="lives"
         @selected-option="checkAnswer"
       />
     </div>
@@ -99,6 +128,7 @@ const {
   pokemonOptions: options,
   countWins,
   highScore,
+  lives,
   checkAnswer,
   getNextRound,
 } = usePokemonGame();

@@ -22,6 +22,7 @@
       :block-selection="gameStatus !== GameStatus.Playing"
       :correct-answer="randomPokemon?.id!"
       :game-status="gameStatus"
+      :lives="lives"
       @selected-option="checkAnswer"
     />
 
@@ -48,6 +49,7 @@ const {
   pokemonOptions,
   countWins,
   highScore,
+  lives,
   checkAnswer,
   getNextRound,
 } = usePokemonGame();

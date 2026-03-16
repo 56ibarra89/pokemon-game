@@ -8,6 +8,7 @@ export const usePokemonGame = () => {
   const pokemons = ref<Pokemon[]>([]);
   const pokemonOptions = ref<Pokemon[]>([]);
   const countWins = ref(0);
+  const lives = ref(3);
   const highScore = ref(Number(localStorage.getItem('pokemonHighScore')) || 0);
 
   const randomPokemon = computed(() => {
@@ -33,6 +34,12 @@ export const usePokemonGame = () => {
 
   const getNextRound = (howMany: number = 4) => {
     gameStatus.value = GameStatus.Playing;
+    
+    // Reset lives if player previously lost all of them
+    if (lives.value <= 0) {
+      lives.value = 3;
+    }
+
     pokemonOptions.value = pokemons.value.slice(0, howMany);
     pokemons.value = pokemons.value.slice(howMany);
   };
@@ -43,6 +50,11 @@ export const usePokemonGame = () => {
     if (hasWon) {
       gameStatus.value = GameStatus.Won;
       countWins.value++;
+
+      // Play Pokemon Cry
+      const audio = new Audio(`https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`);
+      audio.volume = 0.5; // Slightly lower volume so it's not too loud
+      audio.play();
 
       if (countWins.value > highScore.value) {
         highScore.value = countWins.value;
@@ -57,8 +69,15 @@ export const usePokemonGame = () => {
       return;
     }
 
-    gameStatus.value = GameStatus.Lost;
-    countWins.value = 0;
+    // Incorrect answer
+    lives.value--;
+
+    if (lives.value <= 0) {
+      // Game over
+      gameStatus.value = GameStatus.Lost;
+      countWins.value = 0;
+    }
+    // If lives > 0, we do nothing to gameStatus so the user can try another button.
   };
 
   onMounted(async () => {
@@ -75,6 +94,7 @@ export const usePokemonGame = () => {
     randomPokemon,
     countWins,
     highScore,
+    lives,
 
     // Methods
     getNextRound,
