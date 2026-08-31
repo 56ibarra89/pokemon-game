@@ -32,12 +32,15 @@ export const usePokemonGame = () => {
     return pokemonsArray.sort(() => Math.random() - 0.5);
   };
 
-  const getNextRound = (howMany: number = 4) => {
+  const getNextRound = async (howMany: number = 4) => {
     gameStatus.value = GameStatus.Playing;
-    
-    // Reset lives if player previously lost all of them
+
     if (lives.value <= 0) {
       lives.value = 3;
+    }
+
+    if (pokemons.value.length < howMany) {
+      pokemons.value = await getPokemons();
     }
 
     pokemonOptions.value = pokemons.value.slice(0, howMany);
